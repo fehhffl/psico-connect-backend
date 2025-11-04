@@ -1,133 +1,128 @@
-# PsicoConnect Backend API
+# PsicoConnect - Backend
 
-Backend API para a plataforma PsicoConnect - Conectando psicólogos estagiários e pacientes.
-
-## 🚀 Tecnologias
-
-- Node.js + Express
-- MongoDB + Mongoose
-- Socket.io (notificações em tempo real)
-- JWT (autenticação)
-- Bcrypt (hash de senhas)
+API REST desenvolvida em Node.js para o sistema PsicoConnect.
 
 ## 📋 Pré-requisitos
 
-- Node.js v18+
-- MongoDB rodando localmente ou MongoDB Atlas
+- Node.js (v18 ou superior)
+- MongoDB (v6 ou superior)
+- npm ou yarn
 
-## 🔧 Instalação
+## 🚀 Como rodar o projeto
 
-1. Instalar dependências:
+### 1. Clone o repositório
+
+```bash
+git clone [url-do-repositorio]
+cd psico-connect-backend
+```
+
+### 2. Instale as dependências
+
 ```bash
 npm install
 ```
 
-2. Configurar variáveis de ambiente:
+### 3. Configure o MongoDB
+
+Certifique-se de que o MongoDB está instalado e rodando:
+
 ```bash
-cp .env.example .env
+# No macOS com Homebrew
+brew services start mongodb-community
+
+# No Ubuntu/Debian
+sudo systemctl start mongod
+
+# No Windows
+# Inicie o MongoDB através do MongoDB Compass ou serviço do Windows
 ```
 
-Edite o arquivo `.env` com suas configurações:
-```
+### 4. Configure as variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+```env
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/psicoconnect
-JWT_SECRET=seu_segredo_aqui
+JWT_SECRET=mude_isso_em_producao_use_algo_muito_secreto
 JWT_EXPIRE=7d
 NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:3000
 ```
 
-3. Iniciar o servidor:
+### 5. Execute o projeto
 
-**Desenvolvimento:**
 ```bash
 npm run dev
 ```
 
-**Produção:**
-```bash
-npm start
+O servidor estará disponível em: **http://localhost:5000**
+
+## 📦 Scripts disponíveis
+
+- `npm run dev` - Inicia o servidor com nodemon (auto-reload)
+- `npm start` - Inicia o servidor em produção
+- `npm test` - Executa os testes
+
+## 🛠️ Stack
+
+- **Node.js** - Runtime JavaScript
+- **Express** - Framework web
+- **MongoDB** - Banco de dados NoSQL
+- **Mongoose** - ODM para MongoDB
+- **JWT** - Autenticação
+- **Socket.io** - WebSocket para real-time
+
+## 📁 Estrutura do projeto
+
+```
+src/
+├── config/         # Configurações (DB, Auth)
+├── controllers/    # Lógica de negócio
+├── middleware/     # Middlewares (auth, error)
+├── models/         # Schemas do MongoDB
+├── routes/         # Rotas da API
+├── services/       # Serviços (Socket.io)
+└── utils/          # Utilitários
 ```
 
-## 📡 Endpoints da API
+## 📡 Endpoints principais
 
 ### Autenticação
-- `POST /api/auth/register` - Registrar novo usuário
+- `POST /api/auth/register` - Cadastro
 - `POST /api/auth/login` - Login
-- `GET /api/auth/me` - Obter dados do usuário logado
-- `PUT /api/auth/update-password` - Atualizar senha
+- `GET /api/auth/me` - Dados do usuário
 
 ### Usuários
 - `GET /api/users/psychologists` - Listar psicólogos
-- `GET /api/users/patients` - Listar pacientes (apenas psicólogos)
-- `GET /api/users/specialties` - Listar especialidades
-- `GET /api/users/:id` - Buscar usuário por ID
+- `GET /api/users/patients` - Listar pacientes
 - `PUT /api/users/profile` - Atualizar perfil
-- `DELETE /api/users/account` - Desativar conta
 
 ### Notificações
-- `POST /api/notifications` - Criar notificação
 - `GET /api/notifications` - Listar notificações
-- `PUT /api/notifications/:id/read` - Marcar como lida
-- `PUT /api/notifications/read-all` - Marcar todas como lidas
-- `DELETE /api/notifications/:id` - Deletar notificação
+- `POST /api/notifications` - Criar notificação
 
-## 🔌 WebSocket Events
+## ⚠️ Importante
 
-### Cliente → Servidor
-- `user:online` - Usuário ficou online
-- `typing:start` - Começou a digitar
-- `typing:stop` - Parou de digitar
+- O MongoDB deve estar rodando antes de iniciar o servidor
+- Use uma JWT_SECRET forte em produção
+- As portas padrão são: Backend (5000) e Frontend (3000)
 
-### Servidor → Cliente
-- `notification` - Nova notificação recebida
-- `message` - Nova mensagem recebida
-- `user:status` - Status de usuário mudou
-- `typing:user` - Usuário está digitando
+## 🐛 Problemas comuns
 
-## 🔒 Autenticação
+**MongoDB não conecta**:
+- Verifique se o MongoDB está rodando: `mongosh` ou `mongo`
+- Verifique a string de conexão no `.env`
 
-Todas as rotas protegidas requerem um token JWT no header:
+**Porta em uso**:
+- Mude a porta no arquivo `.env`
+- Ou termine o processo: `lsof -i :5000` e `kill -9 [PID]`
 
-```
-Authorization: Bearer SEU_TOKEN_AQUI
-```
+**Erro de dependências**:
+- Delete `node_modules` e `package-lock.json`
+- Execute `npm install` novamente
 
-## 📝 Estrutura do Projeto
+---
 
-```
-psico-connect-backend/
-├── src/
-│   ├── config/          # Configurações (DB, JWT)
-│   ├── controllers/     # Controladores das rotas
-│   ├── middleware/      # Middlewares (auth, error handler)
-│   ├── models/         # Modelos do MongoDB
-│   ├── routes/         # Definição das rotas
-│   ├── services/       # Serviços (Socket.io)
-│   └── utils/          # Utilitários
-├── .env                # Variáveis de ambiente
-├── .gitignore
-├── package.json
-└── server.js           # Arquivo principal
-```
-
-## 🧪 Testando a API
-
-Você pode usar ferramentas como Postman, Insomnia ou curl para testar os endpoints.
-
-Exemplo de registro:
-```bash
-curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "João Silva",
-    "email": "joao@example.com",
-    "password": "senha123",
-    "userType": "paciente",
-    "phone": "(11) 98888-8888"
-  }'
-```
-
-## 📄 Licença
-
-ISC
+Desenvolvido com ❤️ por Felipe Forioni
